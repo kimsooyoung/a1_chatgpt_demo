@@ -1,0 +1,20 @@
+<launch>
+    <arg name="type" default="gazebo"/>
+    <arg name="solver_type" default="mpc"/>
+
+    <!-- Gazebo Simulation -->
+    <include file="$(find a1_cpp)/launch/a1_ctrl.launch">
+        <arg name="type" value="$(arg type)"/>
+        <arg name="solver_type" value="$(arg solver_type)"/>
+
+    </include>
+
+    <node pkg="a1_chatgpt_demo" type="rpy_control.py" name="rpy_control" output="screen"/>
+    
+    <node pkg="a1_chatgpt_demo" type="emergency_stop.py" name="emergency_stop" output="screen"/>
+    <node pkg="a1_chatgpt_demo" type="take_pic.py" name="take_pic" output="screen"/>
+    <node pkg="a1_chatgpt_demo" type="shoot_video.py" name="shoot_video" output="screen"/>
+    <node pkg="a1_chatgpt_demo" type="waypoint_control.py" name="waypoint_control" output="screen"/>
+    <node pkg="a1_chatgpt_demo" type="pitch_control.py" name="pitch_control" output="screen"/>
+
+</launch>
