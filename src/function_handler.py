@@ -23,6 +23,7 @@ class GPTFunctionHandler(object):
         self.waypoint_pub = rospy.Publisher('/gpt_waypoint', Float64MultiArray, queue_size=1)
         self.pitch_ctrl_pub = rospy.Publisher('/gpt_pitch_control', Float64MultiArray, queue_size=1)
 
+        self.cur_pose_pub = rospy.Publisher('/gpt_cur_pose', EmptyMsg, queue_size=1)
 
     def take_picture(self):
         self.picture_pub.publish(EmptyMsg())
@@ -47,3 +48,7 @@ class GPTFunctionHandler(object):
         array_data = [min_angle, max_angle]  # Example array with three elements
         self.pitch_ctrl_pub.publish(Float64MultiArray(data=array_data))
         rospy.loginfo("Pitch Control!")
+
+    def get_cur_pose(self):
+        self.cur_pose_pub.publish(EmptyMsg())
+        rospy.loginfo("Get Current Pose!")

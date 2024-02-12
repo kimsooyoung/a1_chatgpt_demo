@@ -160,10 +160,14 @@ class WaypointCtrl(object):
 
         # Turn AgainTrueturn" and np.abs(diff_pose[2]) < 0.05:
         if self.moving_mode == "second turn" and np.abs(diff_pose[2]) > 0.05:
-            self.control_msg.linear.x = 0.0
-            self.control_msg.linear.y = 0.0
-            omega = bounding(0.8 * target_angle_diff, -1.0, 1.0)
+            xvel = bounding( diff_pose_robot[0], -0.6, 0.6)
+            yvel = bounding( diff_pose_robot[1], -0.6, 0.6)            
+            self.control_msg.linear.x = xvel
+            self.control_msg.linear.y = yvel
+
+            omega = bounding(0.8 * diff_pose[2], -1.0, 1.0)
             self.control_msg.angular.z = omega
+            print("[second turn] diff_pose : ", diff_pose_robot[2])
 
         if self.moving_mode == "second turn" and np.abs(diff_pose[2]) < 0.05:
             self.control_msg.angular.z = 0.0

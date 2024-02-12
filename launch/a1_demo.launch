@@ -16,5 +16,6 @@
     <node pkg="a1_chatgpt_demo" type="shoot_video.py" name="shoot_video" output="screen"/>
     <node pkg="a1_chatgpt_demo" type="waypoint_control.py" name="waypoint_control" output="screen"/>
     <node pkg="a1_chatgpt_demo" type="pitch_control.py" name="pitch_control" output="screen"/>
+    <node pkg="a1_chatgpt_demo" type="pose_handler.py" name="pose_handler" output="screen"/>
 
 </launch>

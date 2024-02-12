@@ -17,8 +17,6 @@ class EStop(object):
     def callback(self, msg):
         res = self.stand_srv()
 
-        rospy.loginfo("Emergency Stop!")
-
 
 def e_stop():
 
