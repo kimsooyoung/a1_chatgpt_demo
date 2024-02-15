@@ -17,5 +17,6 @@
     <node pkg="a1_chatgpt_demo" type="waypoint_control.py" name="waypoint_control" output="screen"/>
     <node pkg="a1_chatgpt_demo" type="pitch_control.py" name="pitch_control" output="screen"/>
     <node pkg="a1_chatgpt_demo" type="pose_handler.py" name="pose_handler" output="screen"/>
+    <node pkg="a1_chatgpt_demo" type="state_control.py" name="state_control" output="screen"/>
 
 </launch>

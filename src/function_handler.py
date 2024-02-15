@@ -22,8 +22,8 @@ class GPTFunctionHandler(object):
         self.video_pub = rospy.Publisher('/gpt_video', Float64, queue_size=1)
         self.waypoint_pub = rospy.Publisher('/gpt_waypoint', Float64MultiArray, queue_size=1)
         self.pitch_ctrl_pub = rospy.Publisher('/gpt_pitch_control', Float64MultiArray, queue_size=1)
-
         self.cur_pose_pub = rospy.Publisher('/gpt_cur_pose', EmptyMsg, queue_size=1)
+        self.relative_pos_pub = rospy.Publisher('/gpt_relative_position', Float64MultiArray, queue_size=1)
 
     def take_picture(self):
         self.picture_pub.publish(EmptyMsg())
@@ -52,3 +52,8 @@ class GPTFunctionHandler(object):
     def get_cur_pose(self):
         self.cur_pose_pub.publish(EmptyMsg())
         rospy.loginfo("Get Current Pose!")
+
+    def relative_pos_control(self, x, y, theta):
+        array_data = [x, y, theta]
+        self.relative_pos_pub.publish(Float64MultiArray(data=array_data))
+        rospy.loginfo("Relative Position Control!")
