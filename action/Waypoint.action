@@ -1,0 +1,8 @@
+#goal         
+float64[] pose
+---
+#result
+bool success
+---
+#feedback
+float64 left_distance
