@@ -6,6 +6,7 @@ import numpy as np
 from std_msgs.msg import Empty as EmptyMsg
 from std_msgs.msg import Float64MultiArray
 from std_srvs.srv import Empty, EmptyResponse
+from std_srvs.srv import Trigger, TriggerResponse
 from geometry_msgs.msg import Pose
 from nav_msgs.msg import Odometry
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
@@ -33,8 +34,9 @@ class CurrentPose(object):
     def __init__(self):
 
         self.sub_odom = rospy.Subscriber("/torso_odom", Odometry, self.odom_callback)
-        self.gpt_sub = rospy.Subscriber('/gpt_cur_pose', EmptyMsg, self.gpt_callback)
-        
+        # self.gpt_sub = rospy.Subscriber('/gpt_cur_pose', EmptyMsg, self.gpt_callback)
+        self.gpt_server = rospy.Service('/gpt_cur_pose', Trigger, self.gpt_callback)
+
         # (x, y, theta)
         self.waypoint_pose = None
         self.cur_pos = np.array([0.0, 0.0, 0.0])
@@ -42,10 +44,16 @@ class CurrentPose(object):
 
         self.roll, self.pitch, self.yaw = 0.0, 0.0, 0.0
 
-    def gpt_callback(self, msg):
+    def gpt_callback(self, request):
 
-        print(f"X : {self.cur_pos[0]}, Y : {self.cur_pos[1]}, Theta : {self.cur_pos[2]}")
-        print(f"Roll : {self.roll}, Pitch : {self.pitch}, Yaw : {self.yaw}")
+        # Create a response
+        response = TriggerResponse()
+        response.success = True
+        response.message = \
+            f"\nX : {self.cur_pos[0]} \nY : {self.cur_pos[1]} \nTheta : {self.cur_pos[2]}" \
+            f"\n\nRoll : {self.roll} \nPitch : {self.pitch} \nYaw : {self.yaw}"
+
+        return response
 
     def odom_callback(self, msg):
 

@@ -7,6 +7,7 @@ from std_msgs.msg import Float64
 from std_msgs.msg import Float64MultiArray
 from std_msgs.msg import Empty as EmptyMsg
 from std_srvs.srv import Empty, EmptyResponse
+from std_srvs.srv import Trigger, TriggerRequest
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Pose
 from nav_msgs.msg import Odometry
@@ -22,8 +23,10 @@ class GPTFunctionHandler(object):
         self.video_pub = rospy.Publisher('/gpt_video', Float64, queue_size=1)
         self.waypoint_pub = rospy.Publisher('/gpt_waypoint', Float64MultiArray, queue_size=1)
         self.pitch_ctrl_pub = rospy.Publisher('/gpt_pitch_control', Float64MultiArray, queue_size=1)
-        self.cur_pose_pub = rospy.Publisher('/gpt_cur_pose', EmptyMsg, queue_size=1)
         self.relative_pos_pub = rospy.Publisher('/gpt_relative_position', Float64MultiArray, queue_size=1)
+        
+        # self.cur_pose_pub = rospy.Publisher(, EmptyMsg, queue_size=1)
+        self.cur_pose_client = rospy.ServiceProxy('/gpt_cur_pose', Trigger)
 
     def take_picture(self):
         self.picture_pub.publish(EmptyMsg())
@@ -50,8 +53,9 @@ class GPTFunctionHandler(object):
         rospy.loginfo("Pitch Control!")
 
     def get_cur_pose(self):
-        self.cur_pose_pub.publish(EmptyMsg())
-        rospy.loginfo("Get Current Pose!")
+        res = self.cur_pose_client(TriggerRequest())
+        rospy.loginfo(res.message)
+        return res.success
 
     def relative_pos_control(self, x, y, theta):
         array_data = [x, y, theta]
