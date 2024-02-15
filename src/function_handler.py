@@ -2,6 +2,7 @@
 
 import time
 import rospy
+import actionlib
 import numpy as np
 from std_msgs.msg import Float64
 from std_msgs.msg import Float64MultiArray
@@ -13,6 +14,7 @@ from geometry_msgs.msg import Pose
 from nav_msgs.msg import Odometry
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
+from a1_chatgpt_demo.msg import WaypointAction, WaypointGoal
 
 class GPTFunctionHandler(object):
 
@@ -27,6 +29,7 @@ class GPTFunctionHandler(object):
         
         # self.cur_pose_pub = rospy.Publisher(, EmptyMsg, queue_size=1)
         self.cur_pose_client = rospy.ServiceProxy('/gpt_cur_pose', Trigger)
+        self.waypoint_action_server = actionlib.SimpleActionClient('/gpt_waypoint_pending', WaypointAction)
 
     def take_picture(self):
         self.picture_pub.publish(EmptyMsg())
@@ -61,3 +64,20 @@ class GPTFunctionHandler(object):
         array_data = [x, y, theta]
         self.relative_pos_pub.publish(Float64MultiArray(data=array_data))
         rospy.loginfo("Relative Position Control!")
+
+    def target_waypoint_pending(self, x, y, theta):
+        waypoint_goal = WaypointGoal()
+        waypoint_goal.pose = [x, y, theta]
+
+        self.waypoint_action_server.send_goal(waypoint_goal)
+        self.waypoint_action_server.wait_for_result()
+
+        succeed = False
+        print("Waiting for waypoint to be reached...")
+
+        result = self.waypoint_action_server.get_result()
+        succeed = result.success
+        
+        if succeed:
+            rospy.loginfo("Waypoint reached!")
+        
