@@ -21,6 +21,7 @@ class GPTFunctionHandler(object):
     def __init__(self):
 
         self.standing_pub = rospy.Publisher('/gpt_standing', EmptyMsg, queue_size=1)
+        self.walking_pub = rospy.Publisher('/gpt_walking', EmptyMsg, queue_size=1)
         self.picture_pub = rospy.Publisher('/gpt_pictrue', EmptyMsg, queue_size=1)
         self.video_pub = rospy.Publisher('/gpt_video', Float64, queue_size=1)
         self.waypoint_pub = rospy.Publisher('/gpt_waypoint', Float64MultiArray, queue_size=1)
@@ -34,6 +35,10 @@ class GPTFunctionHandler(object):
     def take_picture(self):
         self.picture_pub.publish(EmptyMsg())
         rospy.loginfo("Take Picture!")
+
+    def walking_again(self):
+        self.walking_pub.publish(EmptyMsg())
+        rospy.loginfo("Walking Again!")
 
     def e_stop(self):
         self.standing_pub.publish(EmptyMsg())
