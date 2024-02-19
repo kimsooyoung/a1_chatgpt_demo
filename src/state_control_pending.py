@@ -10,6 +10,9 @@ from geometry_msgs.msg import Pose
 from nav_msgs.msg import Odometry
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
+import actionlib
+from a1_chatgpt_demo.msg import WaypointAction, WaypointGoal, WaypointResult
+
 def calcHomogeneousMatrix(x, y, theta):
 
     output = np.zeros((3, 3))
@@ -46,12 +49,15 @@ class RelativePosCtrl(object):
 
     def __init__(self):
 
+        self.odom_sub = rospy.Subscriber("/torso_odom", Odometry, self.callback_odom)
         self.cmd_vel_pub = rospy.Publisher("/cmd_vel", Twist, queue_size=1)
         self.stand_srv = rospy.ServiceProxy("/standing", Empty)
         self.walk_srv = rospy.ServiceProxy("/walking", Empty)
         
-        self.gpt_sub = rospy.Subscriber('/gpt_relative_position', Float64MultiArray, self.gpt_callback)
-        self.odom_sub = rospy.Subscriber("/torso_odom", Odometry, self.callback_odom)
+        # self.gpt_sub = rospy.Subscriber('/gpt_relative_position', Float64MultiArray, self.gpt_callback)
+        self.gpt_action_server = actionlib.SimpleActionServer(
+            '/gpt_relative_position_pending', WaypointAction, execute_cb=self.gpt_callback, auto_start=False
+        )
         
         # (x, y, theta)
         self.pose_diff = None
@@ -68,20 +74,35 @@ class RelativePosCtrl(object):
 
         self.control_msg = Twist()
         self.stop_msg = Twist()
+        self.result = None 
 
-    def gpt_callback(self, msg):
-        
+        self.r = rospy.Rate(1)
+
+        self.gpt_action_server.start()
+
+    def gpt_callback(self, goal):
+
         self.move_flag = True
         self.moving_mode = "initial"
 
-        # self.pose_diff = np.array(msg.data)
-        self.pose_diff = np.array([msg.data[0], msg.data[1], 1.0])
+        self.pose_diff = np.array([goal.pose[0], goal.pose[1], 1.0])
         self.target_pos = self.cur_pos + self.rot_mat @ self.pose_diff
+        # Homogeneous matrix compensation
         self.target_pos[2] = angleBounding(self.target_pos[2] + goal.pose[2] - 1.0)
 
-        print(f"self.cur_pos: {self.cur_pos}")
-        print(f"self.pose_diff: {self.pose_diff}")
-        print(f"New target: {self.target_pos}")
+        self.result = WaypointResult()
+        
+        while self.moving_mode != "stop":
+
+            if self.gpt_action_server.is_preempt_requested():
+                self.gpt_action_server.set_preempted()
+
+            self.r.sleep()
+
+        self.result.success = True
+        
+        print("[Waypoint Pending] Waypoint reached")
+        self.gpt_action_server.set_succeeded(self.result)   
 
     def callback_odom(self, msg):
 
@@ -97,7 +118,6 @@ class RelativePosCtrl(object):
         self.cur_pos[2] = yaw
 
         self.rot_mat = calcHomogeneousMatrix(self.cur_pos[0], self.cur_pos[1], self.cur_pos[2])
-
         self.move()
 
     def move(self):
@@ -174,9 +194,7 @@ class RelativePosCtrl(object):
 
         self.cmd_vel_pub.publish(self.control_msg)
 
-
-
-def relative_position_control():
+def relative_position_control_pending():
 
     rospy.init_node("state_control_node", anonymous=True)
     relative_pos_control = RelativePosCtrl()
@@ -186,6 +204,6 @@ def relative_position_control():
 if __name__ == "__main__":
 
     try:
-        relative_position_control()
+        relative_position_control_pending()
     except KeyboardInterrupt:
         print("Shutting down")

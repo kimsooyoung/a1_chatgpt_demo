@@ -31,6 +31,7 @@ class GPTFunctionHandler(object):
         # self.cur_pose_pub = rospy.Publisher(, EmptyMsg, queue_size=1)
         self.cur_pose_client = rospy.ServiceProxy('/gpt_cur_pose', Trigger)
         self.waypoint_action_server = actionlib.SimpleActionClient('/gpt_waypoint_pending', WaypointAction)
+        self.pos_action_server = actionlib.SimpleActionClient('/gpt_relative_position_pending', WaypointAction)
 
     def take_picture(self):
         self.picture_pub.publish(EmptyMsg())
@@ -85,4 +86,19 @@ class GPTFunctionHandler(object):
         
         if succeed:
             rospy.loginfo("Waypoint reached!")
+
+    def relative_pos_control_pending(self, x, y, theta):
+        waypoint_goal = WaypointGoal()
+        waypoint_goal.pose = [x, y, theta]
+
+        self.pos_action_server.send_goal(waypoint_goal)
+        self.pos_action_server.wait_for_result()
+
+        succeed = False
+        print("Waiting for relative position to be reached...")
+
+        result = self.pos_action_server.get_result()
+        succeed = result.success
         
+        if succeed:
+            rospy.loginfo("Position reached!")
