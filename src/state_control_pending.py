@@ -86,9 +86,16 @@ class RelativePosCtrl(object):
         self.moving_mode = "initial"
 
         self.pose_diff = np.array([goal.pose[0], goal.pose[1], 1.0])
-        self.target_pos = self.cur_pos + self.rot_mat @ self.pose_diff
+        # self.target_pos = self.cur_pos + self.rot_mat @ self.pose_diff
+        self.target_pos = self.rot_mat @ self.pose_diff
         # Homogeneous matrix compensation
-        self.target_pos[2] = angleBounding(self.target_pos[2] + goal.pose[2] - 1.0)
+        # self.target_pos[2] = angleBounding(self.target_pos[2] + goal.pose[2] - 1.0)
+        self.target_pos[2] = angleBounding(self.cur_pos[2] + goal.pose[2])
+
+        print(f"self.pose_diff: {self.pose_diff}")
+        print(f"self.rot_mat @ self.pose_diff: {self.rot_mat @ self.pose_diff}")
+        print(f"Current Position: {self.cur_pos}")
+        print(f"Target Position: {self.target_pos}")
 
         self.result = WaypointResult()
         
