@@ -109,8 +109,6 @@ with open(args.prompt, "r", encoding='UTF8') as f:
 ask(prompt)
 print("Welcome to the unitree simulator! I am ready to help you")
 
-function_handler.e_stop() 
-
 while True:
     question = input(colors.YELLOW + "ChatGPT Quadruped> " + colors.ENDC)
 
@@ -118,7 +116,7 @@ while True:
         break
 
     if question == "!clear":
-        os.system("cls")
+        os.system("clear")
         continue
 
     response = ask(question)
