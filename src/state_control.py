@@ -77,7 +77,7 @@ class RelativePosCtrl(object):
         # self.pose_diff = np.array(msg.data)
         self.pose_diff = np.array([msg.data[0], msg.data[1], 1.0])
         self.target_pos = self.cur_pos + self.rot_mat @ self.pose_diff
-        self.target_pos[2] = angleBounding(self.target_pos[2] + goal.pose[2] - 1.0)
+        self.target_pos[2] = angleBounding(self.target_pos[2] + self.cur_pos[2] - 1.0)
 
         print(f"self.cur_pos: {self.cur_pos}")
         print(f"self.pose_diff: {self.pose_diff}")

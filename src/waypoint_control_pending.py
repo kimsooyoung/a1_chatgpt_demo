@@ -151,13 +151,22 @@ class WaypointPending(object):
         if self.moving_mode == "first turn" and np.abs(target_angle_diff) > 0.1:
             self.control_msg.linear.x = 0.0
             self.control_msg.linear.y = 0.0
-            omega = bounding(0.8 * target_angle_diff, -1.0, 1.0)
+            omega = bounding(0.8 * target_angle_diff, -0.8, 0.8)
             self.control_msg.angular.z = omega
             # print("[first turn] target_angle_diff: ", target_angle_diff)
         if self.moving_mode == "first turn" and np.abs(target_angle_diff) < 0.1:
+            self.control_msg.linear.x = 0.0
+            self.control_msg.linear.y = 0.0
             self.control_msg.angular.z = 0.0
-            self.moving_mode = "moving forward"
+            self.moving_mode = "temp stop"
+            res = self.stand_srv()
             print("[Waypoint Pending] First turn finished")
+
+        if self.moving_mode == "temp stop":
+            time.sleep(1)
+            print("[Waypoint Pending] Temp stop finished")
+            res = self.walk_srv()
+            self.moving_mode = "moving forward"
 
         # Moving Forward
         if self.moving_mode == "moving forward":
@@ -167,15 +176,15 @@ class WaypointPending(object):
             # 갑자기 빨라지는 것 방지
             self.cur_vel = np.linalg.norm([xvel, yvel])
             
-            if np.abs(self.cur_vel - self.prev_vel) > 0.3 and self.count < 5000:
+            # if np.abs(self.cur_vel - self.prev_vel) > 0.3 and self.count < 5000:
+            if self.count < 5000:
                 xvel /= 2
                 yvel /= 2
                 self.count += 1
                 # print("[moving forward] vel limit")
             if self.count == 5000:
                 self.prev_vel = self.cur_vel
-                self.count = 0
-
+            
             self.control_msg.linear.x = xvel
             self.control_msg.linear.y = yvel
             self.control_msg.angular.z = 0.0
@@ -184,6 +193,7 @@ class WaypointPending(object):
             self.control_msg.linear.x = 0.0
             self.control_msg.linear.y = 0.0
             self.control_msg.angular.z = 0.0
+            self.count = 0
 
             self.moving_mode = "second turn"
             print("[Waypoint Pending] Moving forward finished")
