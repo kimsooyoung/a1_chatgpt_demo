@@ -1,6 +1,10 @@
 # Unitree A1 ChatGPT Demo
 > Simple Demo for Robotics and LLM Integration. Unitree A1 quadruped robot and ChatGPT 4.0 utilized
 
+![image](https://github.com/kimsooyoung/a1_chatgpt_demo/assets/12381733/44417345-b8b1-49bd-a02d-12616f624798)
+
+
+
 ## Project Structure
 
 1. Write prompt including how to use robot API and the information about the scene.
